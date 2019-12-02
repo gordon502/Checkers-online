@@ -37,11 +37,21 @@ int checkJumps(int board[8][8], int playerMove){
     return false;
 }
 
+<<<<<<< HEAD
+=======
+int dosmth(){
+    return 0;
+}
+>>>>>>> 97eb0b329478232915fe06d6d62c2aa0082fe7c4
 void startNewGame(){
 
     int playerMove = 1; //which player has to move    
     int continuousJump = false; //boolean flag to provide multiple jump move
+<<<<<<< HEAD
     int lastJumpCoords[] = {99, 99}; //current piece indexes which jumped last move but still have available extra jump
+=======
+    int lastJumpCoords[] = {99, 99}; //current piece indexes who jumped last move but after move still have available jump
+>>>>>>> 97eb0b329478232915fe06d6d62c2aa0082fe7c4
     //fill board with start setup
     int board[8][8] = { { 0, 2, 0, 2, 0, 2, 0, 2 }, //0 - empty field
                         { 2, 0, 2, 0, 2, 0, 2, 0 }, //1 - white pawn
