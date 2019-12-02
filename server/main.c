@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "singleGamelogic.h"
 
 int main(int argc, char* argv[]){
-    printf("hello World");
+    startNewGame();
     return 0;
 }
