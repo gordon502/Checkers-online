@@ -1,0 +1,4 @@
+#ifndef SINGLEGAMELOGIC_H_INCLUDED
+#define SINGLEGAMELOGIC_H_INCLUDED
+void startNewGame();
+#endif
