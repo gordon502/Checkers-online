@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "singleGamelogic.h"
+#include "singleGameLogic.h"
 
 int main(int argc, char* argv[]){
     startNewGame();
