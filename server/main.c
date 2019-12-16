@@ -21,9 +21,9 @@ struct Descriptors
 void * Thread(void *arg) 
 {
     int player1Socket = ((struct Descriptors*)arg)->player1Socket;
+    int player2Socket = ((struct Descriptors*)arg)->player2Socket;
     
     printf("elo");
-    pthread_detach(pthread_self());
     pthread_exit(NULL); 
     
 }
@@ -73,10 +73,10 @@ int main()
     {
         newSocket = accept(serverSocket, (struct sockaddr *) &serverAddr, &addr_size);
         
-        if(connectedInRow = 0) { players -> player1Socket = newSocket; connectedInRow++; }
-        else if(connectedInRow = 1) { players -> player2Socket = newSocket; connectedInRow++; }
+        if(connectedInRow == 0) { players -> player1Socket = newSocket; connectedInRow++; }
+        else if(connectedInRow == 1) { players -> player2Socket = newSocket; connectedInRow++; }
 
-        if(connectedInRow = 2)
+        if(connectedInRow == 2)
         {
             pthread_t thread;
             connectedInRow = 0;
