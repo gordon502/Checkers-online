@@ -10,17 +10,17 @@ import javafx.scene.shape.Circle;
 
 public class Controller {
 
-    //helpful variables to control scene
+    //pomocnicze
     private Circle selectedCircle = null;
     private boolean isSelected = false;
 
-    //scene elements
+    //elementy sceny
     public Button newGameButton;
     public Button exitButton;
     public GridPane gridPane;
     public Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
 
-    //move figures to start positions
+    //przenies figury na pozycje startowe i ustaw z powrotem ich widocznosc
     public void newGame(){
         Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
         int indexes[][] = { {1,0}, {3,0}, {5,0}, {7,0}, {0,1}, {2,1}, {4,1}, {6,1}, {1,2}, {3,2}, {5,2}, {7,2},
@@ -36,7 +36,7 @@ public class Controller {
         }
     }
 
-    //highlight figure
+    //podswietl figure
     public void figureOnMouseEntered(MouseEvent event){
         Circle source = (Circle) event.getSource();
         if(!(selectedCircle == source))
@@ -57,7 +57,7 @@ public class Controller {
         selectedCircle.setStroke(Color.GREEN);
     }
 
-    //move selected figure from one field to another
+    //przenies figure z jednego pola na drugie
     public void makeMove(MouseEvent mouseEvent){
         if (isSelected == false)
             System.out.println("nie wybrales figury");
@@ -69,7 +69,7 @@ public class Controller {
         }
     }
 
-    //close program
+    //zamknij program
     public void exit(){
         Platform.exit();
         System.exit(0);
