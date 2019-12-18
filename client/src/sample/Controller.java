@@ -7,12 +7,18 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.TriangleMesh;
+
+import java.io.IOException;
 
 public class Controller {
 
     //helpful variables to control scene
     private Circle selectedCircle = null;
     private boolean isSelected = false;
+    private int myPlayerNumber;
+
+    private Connection connection;
 
     //scene elements
     public Button newGameButton;
@@ -20,36 +26,53 @@ public class Controller {
     public GridPane gridPane;
     public Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
 
-    //move figures to start positions
-    public void newGame(){
-        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
-        int indexes[][] = { {1,0}, {3,0}, {5,0}, {7,0}, {0,1}, {2,1}, {4,1}, {6,1}, {1,2}, {3,2}, {5,2}, {7,2},
-                            {0,5}, {2,5}, {4,5}, {6,5}, {1,6}, {3,6}, {5,6}, {7,6}, {0,7}, {2,7}, {4,7}, {6,7}};
-        for (int i = 0; i < circles.length; i++){
-            circles[i].setVisible(true);
-            GridPane.setColumnIndex(circles[i], indexes[i][0]);
-            GridPane.setRowIndex(circles[i], indexes[i][1]);
+    //move figures to start positions and establish connection
+    public void newGame() {
+        try{
+            closeLastConnection();
         }
-        if(isSelected) {
-            selectedCircle.setStroke(Color.BLACK);
-            isSelected = false;
+        catch (NullPointerException e){
+            System.out.println("Nie bylo polaczenia");
+        }
+
+        if(establishNewConnection()) {
+            try {
+                String serverMessage = connection.readMessage();
+                myPlayerNumber = Integer.getInteger(serverMessage);
+                System.out.println("Jestes graczem nr " + serverMessage);
+            }
+            catch (IOException e){
+                System.out.println("Nie udalo odczytac sie wiadomosci");
+            }
+            Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
+            int indexes[][] = {{1, 0}, {3, 0}, {5, 0}, {7, 0}, {0, 1}, {2, 1}, {4, 1}, {6, 1}, {1, 2}, {3, 2}, {5, 2}, {7, 2},
+                    {0, 5}, {2, 5}, {4, 5}, {6, 5}, {1, 6}, {3, 6}, {5, 6}, {7, 6}, {0, 7}, {2, 7}, {4, 7}, {6, 7}};
+            for (int i = 0; i < circles.length; i++) {
+                circles[i].setVisible(true);
+                GridPane.setColumnIndex(circles[i], indexes[i][0]);
+                GridPane.setRowIndex(circles[i], indexes[i][1]);
+            }
+            if (isSelected) {
+                selectedCircle.setStroke(Color.BLACK);
+                isSelected = false;
+            }
         }
     }
 
     //highlight figure
-    public void figureOnMouseEntered(MouseEvent event){
+    public void figureOnMouseEntered(MouseEvent event) {
         Circle source = (Circle) event.getSource();
         if(!(selectedCircle == source))
             source.setStroke(Color.RED);
     }
 
-    public void figureOnMouseExited(MouseEvent event){
+    public void figureOnMouseExited(MouseEvent event) {
         Circle source = (Circle) event.getSource();
         if(!(selectedCircle == source))
             source.setStroke(Color.BLACK);
     }
 
-    public void selectFigure(MouseEvent event){
+    public void selectFigure(MouseEvent event) {
         if(isSelected == true)
             selectedCircle.setStroke(Color.BLACK);
         selectedCircle = (Circle) event.getSource();
@@ -58,7 +81,7 @@ public class Controller {
     }
 
     //move selected figure from one field to another
-    public void makeMove(MouseEvent mouseEvent){
+    public void makeMove(MouseEvent mouseEvent) {
         if (isSelected == false)
             System.out.println("nie wybrales figury");
         else{
@@ -71,8 +94,29 @@ public class Controller {
 
     //close program
     public void exit(){
+        closeLastConnection();
         Platform.exit();
         System.exit(0);
+    }
+
+    private void closeLastConnection(){
+        try {
+            connection.closeConnection();
+        }
+        catch (IOException e){
+            System.out.println("Nie udalo zamknac sie polaczenia");
+        }
+    }
+
+    private boolean establishNewConnection(){
+        try{
+            connection = new Connection("localhost", 2222);
+            return true;
+        }
+        catch (IOException e){
+            System.out.println("Blad w tworzeniu polaczenia");
+            return false;
+        }
     }
 
     private Node getNodeFromGridPane(int col, int row) {
