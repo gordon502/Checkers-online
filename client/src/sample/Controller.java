@@ -13,22 +13,23 @@ import java.io.IOException;
 
 public class Controller {
 
-    //helpful variables to control scene
+    //pomocnicze
     private Circle selectedCircle = null;
     private boolean isSelected = false;
     private int myPlayerNumber;
 
     private Connection connection;
 
-    //scene elements
+    //elementy sceny
     public Button newGameButton;
     public Button exitButton;
     public GridPane gridPane;
     public Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
 
+
     //move figures to start positions and establish connection
     public void newGame() {
-        try{
+        try {
             closeLastConnection();
         }
         catch (NullPointerException e){
@@ -59,8 +60,10 @@ public class Controller {
         }
     }
 
-    //highlight figure
-    public void figureOnMouseEntered(MouseEvent event) {
+
+
+    //podswietl figure
+    public void figureOnMouseEntered(MouseEvent event){
         Circle source = (Circle) event.getSource();
         if(!(selectedCircle == source))
             source.setStroke(Color.RED);
@@ -80,8 +83,9 @@ public class Controller {
         selectedCircle.setStroke(Color.GREEN);
     }
 
-    //move selected figure from one field to another
-    public void makeMove(MouseEvent mouseEvent) {
+
+    //przenies figure z jednego pola na drugie
+    public void makeMove(MouseEvent mouseEvent){
         if (isSelected == false)
             System.out.println("nie wybrales figury");
         else{
@@ -92,7 +96,7 @@ public class Controller {
         }
     }
 
-    //close program
+    //zamknij program
     public void exit(){
         closeLastConnection();
         Platform.exit();
