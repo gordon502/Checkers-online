@@ -9,18 +9,57 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 
+
 #define true 1
 #define false 0
 #define maxsize 30
 
+int get_message_size(int activeSocket) {
+    char buf[1];
+    int size[10];
+    int iterator = 0;
+    int multiplier = 1;
+    while(true) {
+        if (recv(activeSocket, buf, 1, 0) <= 0) { //zerwane polaczenie
+            return -1;
+        }
+        else {
+            if (strcmp(buf, "\n") == 0) //znak konca linii == koniec wiadomosci
+                break;
+            else {
+                size[iterator] = atoi(buf); //kopiujemy znaki na dane miejsca w tablicy
+                multiplier = multiplier * 10;
+                iterator++;
+            }
+        }
+    }
+
+    multiplier = multiplier / 10;
+    int message_size = 0;
+    for (int i = 0; i < iterator; i++){
+        message_size = message_size + (size[i] * multiplier);
+        multiplier = multiplier / 10;
+    }
+
+    return message_size;
+    
+}
+
 /* funkcja zamieniajaca pionki na krolowe */
-void convertToQueens(int board[8][8]){
+int convertToQueens(int board[8][8]){
+    int indexes;
     for (int i = 0; i < 8; i = i + 2)
-        if(board[7][i] == 2)
+        if(board[7][i] == 2) {
             board[7][i] = 22;
+            indexes = 70 + i;
+        }
     for (int i = 1; i < 8; i = i + 2)
-        if(board[0][i] == 1)
+        if(board[0][i] == 1){
             board[0][i] = 11;
+            indexes = 100 + i;
+        }
+    return indexes;
+
 }
 
 /* funkcja do sprawdzania czy dostepne jest bicie na planszy */
@@ -147,7 +186,7 @@ int checkMove(int board[8][8], int playerMove, int continuousJump, int lastJumpC
     return false;
 }
 
-void startNewGame(int player1Socket, int player2Socket){
+int startNewGame(int player1Socket, int player2Socket){
 
     char msg1[]="1\n";
     char msg2[]="2\n";
@@ -174,28 +213,35 @@ void startNewGame(int player1Socket, int player2Socket){
     int activeSocket; //socket, ktory ma prawo do ruchu
     int secondSocket; //socket, ktory czeka na drugiego gracza
     int nextPlayer; //gracz, ktory bedzie mial ruch w nastepnej iteracji petli
-    char message[maxsize];
 
     /* petla odpowiedzialna za przetwarzanie rozgrywki */
     while(1) {
 
-        char sendMessage[] = "115041099\n"; //zakodowana wiadomosc
+        char sendMessage[] = "1115041099099\n"; //zakodowana wiadomosc 
         
         if (playerMove == 1) { activeSocket = player1Socket; secondSocket = player2Socket; } //w zaleznosci czyj jest ruch ustawiamy aktywny socket
         else { activeSocket = player2Socket; secondSocket = player1Socket; }
 
-        recv(activeSocket, message, sizeof(message), 0); //odbieranie wiadomosci od aktywnego gracza
+        int rcv_message_size = get_message_size(activeSocket);
+        if (rcv_message_size == -1){ //kiedy zerwane zostalo polaczenie
+            sendMessage[0] = 0;
+            send(secondSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje do drugiego o rozlaczeniu
+            close(secondSocket); //zamknij polaczenie
+            return -1;
+        }
+        char rcv_message[rcv_message_size];
+        recv(activeSocket, rcv_message, rcv_message_size, 0); //odbieranie wiadomosci od aktywnego gracza
 
-        if(checkMove(board, playerMove, continuousJump, lastJumpCoords, message) == true) { //kiedy wyslany ruch jest prawidlowy
-            int index0 = message[0] - '0'; int index1 = message[1] - '0'; //indeksy planszy
-            int index2 = message[2] - '0'; int index3 = message[3] - '0';
+        if(checkMove(board, playerMove, continuousJump, lastJumpCoords, rcv_message) == true) { //kiedy wyslany ruch jest prawidlowy
+            int index0 = rcv_message[0] - '0'; int index1 = rcv_message[1] - '0'; //indeksy planszy
+            int index2 = rcv_message[2] - '0'; int index3 = rcv_message[3] - '0';
 
             board[index2][index3] = board[index0][index1];
             board[index0][index1] = 0;
 
             /* kodowanie z ktorego pola na jaki idzie dana figura */
-            sendMessage[2] = index0 + '0'; sendMessage[3] = index1 + '0';
-            sendMessage[4] = index2 + '0'; sendMessage[5] = index3 + '0';
+            sendMessage[3] = index0 + '0'; sendMessage[4] = index1 + '0';
+            sendMessage[5] = index2 + '0'; sendMessage[6] = index3 + '0';
 
             if(abs(index0 - index2) == 2) { //upewniamy sie czy wykonany ruch byl biciem 
                 board[(index0 + index2) / 2][(index1 + index3) / 2] = 0;
@@ -203,13 +249,13 @@ void startNewGame(int player1Socket, int player2Socket){
                 lastJumpCoords[1] = index3;
                 
                 /* ustawienie czy ma zdjac figure z planszy i jaka */
-                sendMessage[6] = '1';
-                sendMessage[7] = ((index0 + index2) / 2) + '0';
-                sendMessage[8] = ((index1 + index3) / 2) + '0';
+                sendMessage[7] = '1';
+                sendMessage[8] = ((index0 + index2) / 2) + '0';
+                sendMessage[9] = ((index1 + index3) / 2) + '0';
 
                 if (checkJumps(board, playerMove, lastJumpCoords, true)) { // sprawdzamy czy jest kolejne bicie tym pionkiem
                     continuousJump = true;
-                    sendMessage[0] = '1'; sendMessage[1] = '1';
+                    sendMessage[1] = '1'; sendMessage[2] = '1';
 
                     send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o poprawnosci ruchu i obowiazku kolejnego bicia
                     send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, jaki ruch wykonal przeciwnik aby zaktualizowal stan gry
@@ -218,7 +264,7 @@ void startNewGame(int player1Socket, int player2Socket){
                 }
                 else {
                     continuousJump = false;
-                    sendMessage[0] = '1'; sendMessage[1] = '0';
+                    sendMessage[1] = '1'; sendMessage[2] = '0';
 
                     send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o ruchu i zmianie kolejki
                     send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
@@ -228,7 +274,7 @@ void startNewGame(int player1Socket, int player2Socket){
                 }
             }
             else {
-                sendMessage[0] = '1'; sendMessage[1] = '0';
+                sendMessage[1] = '1'; sendMessage[2] = '0';
 
                 send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o ruchu i zmianie kolejki
                 send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
@@ -237,7 +283,13 @@ void startNewGame(int player1Socket, int player2Socket){
             
             }
 
-            convertToQueens(board);
+            int convertPosition = convertToQueens(board);
+            if (convertPosition != -1) { //jesli udalo sie skonwertowac na krolowe
+                sendMessage[10] = 1;
+                sendMessage[12] = convertPosition % 10 + '0';
+                convertPosition = convertPosition / 10;
+                sendMessage[11] = convertPosition % 10 + '0';
+            }
             playerMove = nextPlayer;
 
         }
