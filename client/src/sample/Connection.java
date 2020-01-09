@@ -1,21 +1,24 @@
 package sample;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
-public class Connection{
+public class Connection {
 
     private Socket clientSocket;
-    private BufferedReader reader;
+    private InputStream inputStream;
     private PrintWriter writer;
+    private boolean threadMessageflag;
+    private String threadMessage;
+
+    public boolean isConnected;
 
     public Connection(String address, int port) throws IOException  {
         clientSocket = new Socket(address, port);
-        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        inputStream = clientSocket.getInputStream();
         writer = new PrintWriter(clientSocket.getOutputStream(), true);
+        threadMessageflag = false;
+        isConnected = true;
     }
 
     public void closeConnection() throws IOException {
@@ -23,11 +26,30 @@ public class Connection{
     }
 
     public String readMessage() throws IOException {
-        return reader.readLine();
+        StringBuilder msg = new StringBuilder();
+        int x;
+        while ((x = inputStream.read()) != 0) {
+            msg.append((char) x);
+        }
+        System.out.println(msg.toString());
+        String s = msg.toString().trim();
+        return s;
     }
 
-    public void writeMessage(String message){
-        writer.println(message);
+
+    public void sendMessage(String message) {
+        int size = message.length();
+        writer.println(size); //wysylamy wiadomosc jak duza jest wiadomosc
+
+        writer.print(message); //wysylamy poprawna wiadomosc
+        writer.flush();
     }
+
+
+    public Socket getSocket() {
+        return clientSocket;
+    }
+
+
 
 }

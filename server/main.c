@@ -50,7 +50,7 @@ int main()
 
     //Konfiguracja serwera
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(2222);
+    serverAddr.sin_port = htons(2223);
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
     
@@ -81,7 +81,8 @@ int main()
 
         if(players -> connectedInRow == 2) {
             pthread_t thread;
-            pthread_create(&thread, NULL, Thread, (void *) players);
+            int newGame = pthread_create(&thread, NULL, Thread, (void *) players);
+            pthread_detach(newGame);
         }
     }
 
