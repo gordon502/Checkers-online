@@ -301,6 +301,12 @@ int startNewGame(int player1Socket, int player2Socket){
             write(activeSocket, sendMessage, sizeof(sendMessage)); //informujemy aktywnego gracza, ze ruch jest niepoprawny i aby wykonal go jeszcze raz
         }
         }
+        else
+        {
+            sendMessage[0] = 0;
+            write(secondSocket, sendMessage, sizeof(sendMessage));
+        }
+        
 
     }
 

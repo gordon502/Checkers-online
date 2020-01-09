@@ -83,6 +83,12 @@ public class Controller {
 
                     while (connection.isConnected) {
                         final String receivedMessage = receiveMessage();
+                        if (receivedMessage.startsWith("0")){
+                            connection.isConnected = false;
+                            System.out.println("Utracono polaczenie");
+                            closeLastConnection();
+                            break;
+                        }
                         if (wasMoveCorrect(receivedMessage)) {
                             Platform.runLater(()-> { updateBoard(receivedMessage); });
                             Platform.runLater(() -> { updateGameVariables(receivedMessage); });
@@ -187,6 +193,7 @@ public class Controller {
         if (wasFigureJumped(message)) {
             int rowindex = Integer.valueOf(message.substring(8, 9));
             int columnindex = Integer.valueOf(message.substring(9, 10));
+            System.out.println(rowindex + " " + columnindex);
             Circle removedFigure = (Circle) getNodeFromGridPane(columnindex, rowindex);
             removedFigure.setVisible(false);
         }
