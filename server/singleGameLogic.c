@@ -52,13 +52,15 @@ int convertToQueens(int board[8][8]){
         if(board[7][i] == 2) {
             board[7][i] = 22;
             indexes = 70 + i;
+            return indexes;
         }
     for (int i = 1; i < 8; i = i + 2)
         if(board[0][i] == 1){
             board[0][i] = 11;
             indexes = 100 + i;
+            return indexes;
         }
-    return indexes;
+    return -1;
 
 }
 
