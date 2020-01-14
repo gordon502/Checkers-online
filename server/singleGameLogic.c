@@ -74,85 +74,113 @@ int checkJumps(int board[8][8], int playerMove, int lastJumpCoords[], int contin
                 if (playerMove == 1){
                     if (board[i][j] == 1 || board[i][j] == 11) { 
                         if (i - 2 > -1){
-                            if (j + 2 < 8)
-                                if ((board[i-1][j+1] == 2 || board[i-1][j+1] == 22) && board[i-2][j+2] == 0) //sprawdzamy czy jest to ustawienie do bicia
+                            if (j + 2 < 8){
+                                if ((board[i-1][j+1] == 2 || board[i-1][j+1] == 22) && board[i-2][j+2] == 0){ //sprawdzamy czy jest to ustawienie do bicia
                                     if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
                                         if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
                                             return true;
                                     }
                                     else
                                         return true;
-                            if (j - 2 > -1)
-                                if ((board[i-1][j-1] == 2 || board[i-1][j-1] == 22) && board[i-2][j-2] == 0) //jw
+                                }
+                            }
+                            if (j - 2 > -1){
+                                if ((board[i-1][j-1] == 2 || board[i-1][j-1] == 22) && board[i-2][j-2] == 0) { //jw
                                     if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j) {
                                             return true;
+                                        }
                                     }
-                                    else
+                                    else {
                                         return true;
-                        }
-                    if (board[i][j] == 11){ 
-                        if (i + 2 < 8){
-                            if (j + 2 < 8)
-                                if ((board[i+1][j+1] == 2 || board[i+1][j+1] == 22) && board[i+2][j+2] == 0) //sprawdzenie czy jest to ustawienie pozwalajace na bicie
-                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
-                                            return true;
                                     }
-                                    else
-                                        return true;
-                            if (j - 2 > -1)
-                                if ((board[i+1][j-1] == 2 || board[i+1][j-1] == 22) && board[i+2][j-2] == 0) //jw
-                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
-                                            return true;
-                                    }
-                                    else
-                                        return true;
+                                }
+                            }
                         }
                     }
+                    if (board[i][j] == 11) { 
+                        if (i + 2 < 8) {
+                            if (j + 2 < 8) {
+                                if ((board[i+1][j+1] == 2 || board[i+1][j+1] == 22) && board[i+2][j+2] == 0) { //sprawdzenie czy jest to ustawienie pozwalajace na bicie
+                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j) {
+                                            return true;
+                                        }
+                                    }
+                                    else {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (j - 2 > -1) {
+                                if ((board[i+1][j-1] == 2 || board[i+1][j-1] == 22) && board[i+2][j-2] == 0) {//jw
+                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j) {
+                                            return true;
+                                        }
+                                    }
+                                    else {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
                     } 
                 }
                 else{
-                    if (board[i][j] == 2 || board[i][j] == 22){ //bicia dla czarnych dam i pionkow
-                        if (i + 2 < 8){
-                            if (j + 2 < 8)
-                                if ((board[i+1][j+1] == 1 || board[i+1][j+1] == 11) && board[i+2][j+2] == 0)
+                    if (board[i][j] == 2 || board[i][j] == 22) { //bicia dla czarnych dam i pionkow
+                        if (i + 2 < 8) {
+                            if (j + 2 < 8) {
+                                if ((board[i+1][j+1] == 1 || board[i+1][j+1] == 11) && board[i+2][j+2] == 0) {
+                                    if(continuousJump == true) { //kiedy sprawdzamy bicie konkretnym pionkiem
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j) {
+                                            return true;
+                                        }
+                                    }
+                                    else {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (j - 2 > -1) {
+                                if ((board[i+1][j-1] == 1 || board[i+1][j-1] == 11) && board[i+2][j-2] == 0) {
                                     if(continuousJump == true) { //kiedy sprawdzamy bicie konkretnym pionkiem
                                         if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
                                             return true;
                                     }
-                                    else
+                                    else {
                                         return true;
-                            if (j - 2 > -1)
-                                if ((board[i+1][j-1] == 1 || board[i+1][j-1] == 11) && board[i+2][j-2] == 0)
-                                    if(continuousJump == true) { //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
-                                            return true;
                                     }
-                                    else
-                                        return true;
-                         }
-                    if (board[i][j] == 22){ //brakujace kierunki dla czarnej krolowki
-                        if (i - 2 > -1){
-                            if (j + 2 < 8)
-                                if ((board[i-1][j+1] == 1 || board[i-1][j+1] == 11) && board[i-2][j+2] == 0)
-                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
-                                            return true;
-                                    }
-                                    else
-                                        return true;
-                            if (j - 2 > -1)
-                                if ((board[i-1][j-1] == 1 || board[i-1][j-1] == 11) && board[i-2][j-2] == 0)
-                                    if(continuousJump == true){ //kiedy sprawdzamy bicie konkretnym pionkiem
-                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
-                                            return true;
-                                    }
-                                    else
-                                        return true;
+                                }
+                            }
                          }
                     }
+                    if (board[i][j] == 22){ //brakujace kierunki dla czarnej krolowki
+                        if (i - 2 > -1){
+                            if (j + 2 < 8) {
+                                if ((board[i-1][j+1] == 1 || board[i-1][j+1] == 11) && board[i-2][j+2] == 0) {
+                                    if(continuousJump == true) { //kiedy sprawdzamy bicie konkretnym pionkiem
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j)
+                                            return true;
+                                    }
+                                    else {
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (j - 2 > -1) {
+                                if ((board[i-1][j-1] == 1 || board[i-1][j-1] == 11) && board[i-2][j-2] == 0) {
+                                    if(continuousJump == true) { //kiedy sprawdzamy bicie konkretnym pionkiem
+                                        if(lastJumpCoords[0] == i && lastJumpCoords[1] == j) {
+                                            return true;
+                                        }
+                                    }
+                                    else {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -170,18 +198,21 @@ int checkMove(int board[8][8], int playerMove, int continuousJump, int lastJumpC
     int index2 = move[2] - '0';
     int index3 = move[3] - '0';
 
-    if (index0 >= 0 && index1 >= 0 && index2 >= 0 && index3 >= 0 && index0 <= 7 && index1 <= 7 && index2 <= 7 && index3 <= 7){ //if zapobiegajacy wyjscie poza zakres tablicy board
-        if (board[index0][index1] == playerMove || board[index0][index1] == playerMove * 11){ //sprawdzenie czy zawodnik stara sie poruszac swoja figura
-            if (checkJumps(board, playerMove, lastJumpCoords, false) == true){ //kiedy dostepne sa bicia
-                if (abs(index0 - index2) == 2 && abs(index1 - index3) == 2) //right distance
-                    if (board[index2][index3] == 0 && board[(index0 + index2) / 2][(index1 + index3) / 2] != playerMove //sprawdzenie czy jest to sekwencja poprawna do bicia
-                        && board[(index0 + index2) / 2][(index1 + index3) / 2] != playerMove * 11 && board[(index0 + index2) / 2][(index1 + index3) / 2] != 0)
-                        if (continuousJump == true){
-                            if(index0 == lastJumpCoords[0] && index1 == lastJumpCoords[1])
-                                if (board[index0][index1] / 10 > 0) //czy figura to krolowa
+    if (index0 >= 0 && index1 >= 0 && index2 >= 0 && index3 >= 0 && index0 <= 7 && index1 <= 7 && index2 <= 7 && index3 <= 7) { //if zapobiegajacy wyjscie poza zakres tablicy board
+        if (board[index0][index1] == playerMove || board[index0][index1] == playerMove * 11) { //sprawdzenie czy zawodnik stara sie poruszac swoja figura
+            if (checkJumps(board, playerMove, lastJumpCoords, false) == true) { //kiedy dostepne sa bicia
+                if (abs(index0 - index2) == 2 && abs(index1 - index3) == 2) {  //right distance
+                    if (board[index2][index3] == 0 && board[(index0 + index2) / 2][(index1 + index3) / 2] != playerMove && board[(index0 + index2) / 2][(index1 + index3) / 2] != playerMove * 11 && board[(index0 + index2) / 2][(index1 + index3) / 2] != 0) {//sprawdzenie czy jest to sekwencja poprawna do bicia
+                        //normalnie ten if na gorze by wygladal, ale dziad sypie warningami
+                        if (continuousJump == true) {
+                            if(index0 == lastJumpCoords[0] && index1 == lastJumpCoords[1]) {
+                                if (board[index0][index1] / 10 > 0) {//czy figura to krolowa
                                     return true;
-                                else if ( (playerMove == 1 && index0 > index2) || (playerMove == 2 && index0 < index2) ) //jesli nie, ruchy musza miec odpowiedni kierunek (gracz1 "do gory", gracz2 "na dol")
+                                }
+                                else if ( (playerMove == 1 && index0 > index2) || (playerMove == 2 && index0 < index2) ) { //jesli nie, ruchy musza miec odpowiedni kierunek (gracz1 "do gory", gracz2 "na dol")
                                     return true;
+                                }
+                            }
                         }
                         else{
                             if (board[index0][index1] / 10 > 0) //czy figura to krolowa
@@ -190,22 +221,24 @@ int checkMove(int board[8][8], int playerMove, int continuousJump, int lastJumpC
                                 return true;
                         } 
                     return false;
-            return false;       
+                    }
+                }      
             }
             
             else{ //standardowy ruch
-               if (abs(index0 - index2) == 1 && abs(index1 - index3) == 1 && board[index2][index3] == 0){ //sprawdzenie dystansu i czy pole na ktore idziemy jest wolne
-                    if (board[index0][index1] / 10 > 0) //jesli krolowa
+               if (abs(index0 - index2) == 1 && abs(index1 - index3) == 1 && board[index2][index3] == 0) { //sprawdzenie dystansu i czy pole na ktore idziemy jest wolne
+                    if (board[index0][index1] / 10 > 0) { //jesli krolowa
                         return true;
-                    else if ( (playerMove == 1 && index0 > index2) || (playerMove == 2 && index0 < index2) )
+                    }
+                    else if ( (playerMove == 1 && index0 > index2) || (playerMove == 2 && index0 < index2) ) {
                         return true;
+                    }
                }
             }       
         }
         else
             return false;                                                                                                                      
     }
-
     return false;
 }
 

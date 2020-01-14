@@ -40,62 +40,25 @@ public class Controller {
     private Connection connection;
 
     //elementy sceny
-    public Stage window;
-    public Button newGameButton;
-    public Button exitButton;
-    public Button abortButton;
-    public GridPane gridPane;
-    public Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
-    public Label serverPortLabel;
-    public Label serverAddressLabel;
-    public Label connectionLabel;
-    public TextField serverAddressTextField;
-    public TextField serverPortTextField;
+    private Button newGameButton;
+    private Button exitButton;
+    private Button abortButton;
+    private GridPane gridPane;
+    private Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
+    private Label serverPortLabel;
+    private Label serverAddressLabel;
+    private Label connectionLabel;
+    private TextField serverAddressTextField;
+    private TextField serverPortTextField;
 
-
-    private void setUpPiecesAndVariables(String receivedMessage) {
-        if(receivedMessage.startsWith("9"))
-            myPlayerNumber = receivedMessage.substring(1,2);
-        if (myPlayerNumber.equals("1")) {
-            isMyTurn = true;
-            gridPane.setDisable(!isMyTurn);
-        }
-        else {
-            isMyTurn = false;
-            gridPane.setDisable(!isMyTurn);
-        }
-
-        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
-        int indexes[][] = {{1, 0}, {3, 0}, {5, 0}, {7, 0}, {0, 1}, {2, 1}, {4, 1}, {6, 1}, {1, 2}, {3, 2}, {5, 2}, {7, 2},
-                {0, 5}, {2, 5}, {4, 5}, {6, 5}, {1, 6}, {3, 6}, {5, 6}, {7, 6}, {0, 7}, {2, 7}, {4, 7}, {6, 7}};
-        for (int i = 0; i < circles.length; i++) {
-            circles[i].setVisible(true);
-            GridPane.setColumnIndex(circles[i], indexes[i][0]);
-            GridPane.setRowIndex(circles[i], indexes[i][1]);
-        }
-
-        for (int i = 0; i < 12; i++) {
-            circles[i].setFill(Paint.valueOf(blackPawnColor));
-            circles[i+12].setFill(Paint.valueOf(whitePawnColor));
-        }
-        if (isSelected) {
-            selectedCircle.setStroke(Color.BLACK);
-            isSelected = false;
-        }
-    }
-
-    public void newGame() {
-        startNewGame();
-    }
+    /* ---------------------------- WEWNETRZNE FUNKCJE ----------------------------------- */
 
     //move figures to start positions and establish connection
-    public void startNewGame() {
+    private void startNewGame() {
         try {
             closeLastConnection();
             isConnected = false;
-        } catch (NullPointerException e) {
-            System.out.println("Nie bylo polaczenia");
-        }
+        } catch (NullPointerException e) { }
 
         if (establishNewConnection()) {
             connectionLabel.setVisible(true);
@@ -145,11 +108,85 @@ public class Controller {
         }
     }
 
-    public void abortGame() {
-        closeLastConnection();
-        setSceneElements(false);
-        removeAllPieces();
-        connectionLabel.setVisible(false);
+    private boolean isSelectedFigureWhite(Circle circle) {
+        if (circle.getFill().equals(Paint.valueOf(whitePawnColor)) || circle.getFill().equals(Paint.valueOf(whiteQueenColor)))
+            return true;
+        return false;
+    }
+
+
+    private boolean isSelectedFigureBlack(Circle circle) {
+        if (circle.getFill().equals(Paint.valueOf(blackPawnColor)) || circle.getFill().equals(Paint.valueOf(blackQueenColor)))
+            return true;
+        return false;
+    }
+
+    private void setUpPiecesAndVariables(String receivedMessage) {
+        if(receivedMessage.startsWith("9"))
+            myPlayerNumber = receivedMessage.substring(1,2);
+        if (myPlayerNumber.equals("1")) {
+            isMyTurn = true;
+            gridPane.setDisable(!isMyTurn);
+        }
+        else {
+            isMyTurn = false;
+            gridPane.setDisable(!isMyTurn);
+        }
+
+        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
+        int indexes[][] = {{1, 0}, {3, 0}, {5, 0}, {7, 0}, {0, 1}, {2, 1}, {4, 1}, {6, 1}, {1, 2}, {3, 2}, {5, 2}, {7, 2},
+                {0, 5}, {2, 5}, {4, 5}, {6, 5}, {1, 6}, {3, 6}, {5, 6}, {7, 6}, {0, 7}, {2, 7}, {4, 7}, {6, 7}};
+        for (int i = 0; i < circles.length; i++) {
+            circles[i].setVisible(true);
+            GridPane.setColumnIndex(circles[i], indexes[i][0]);
+            GridPane.setRowIndex(circles[i], indexes[i][1]);
+        }
+
+        for (int i = 0; i < 12; i++) {
+            circles[i].setFill(Paint.valueOf(blackPawnColor));
+            circles[i+12].setFill(Paint.valueOf(whitePawnColor));
+        }
+        if (isSelected) {
+            selectedCircle.setStroke(Color.BLACK);
+            isSelected = false;
+        }
+    }
+
+    private Node getNodeByRowColumnIndex (final int row, final int column) {
+        Node result = null;
+        ObservableList<Node> childrens = gridPane.getChildren();
+
+        for (Node node : childrens) {
+            if(GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column && node.isVisible()) {
+                result = node;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    private void removeAllPieces() {
+        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
+
+        for (Circle circle : circles) {
+            circle.setVisible(false);
+        }
+    }
+
+    private boolean establishNewConnection(){
+        try{
+            if (!serverPortTextField.getText().isEmpty() && !serverAddressTextField.getText().isEmpty()) {
+                connection = new Connection(serverAddressTextField.getText(), Integer.valueOf(serverPortTextField.getText()));
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (IOException e){
+            return false;
+        }
     }
 
     private void closeActiveGame(String information) {
@@ -167,63 +204,6 @@ public class Controller {
         serverPortTextField.setDisable(value);
         abortButton.setVisible(value);
         connectionLabel.setText("Waiting for\nopponent!");
-    }
-
-
-    //podswietl figure
-    public void figureOnMouseEntered(MouseEvent event){
-        Circle source = (Circle) event.getSource();
-        if(!(selectedCircle == source))
-            source.setStroke(Color.RED);
-    }
-
-    public void figureOnMouseExited(MouseEvent event) {
-        Circle source = (Circle) event.getSource();
-        if(!(selectedCircle == source))
-            source.setStroke(Color.BLACK);
-    }
-
-    public void selectFigure(MouseEvent event) {
-        Circle pom = (Circle) event.getSource();
-        if(isSelected == true) {
-            if (selectedCircle == pom){
-                selectedCircle.setStroke(Color.BLACK);
-                isSelected = false;
-            }
-            else {
-                selectedCircle.setStroke(Color.BLACK);
-                selectedCircle = (Circle) event.getSource();
-                selectedCircle.setStroke(Color.GREEN);
-            }
-        }
-        else {
-            if ((myPlayerNumber.equals("1") && isSelectedFigureWhite(pom) || (myPlayerNumber.equals("2") && isSelectedFigureBlack(pom)))) {
-                selectedCircle = (Circle) event.getSource();
-                isSelected = true;
-                selectedCircle.setStroke(Color.GREEN);
-            }
-        }
-    }
-
-    private boolean isSelectedFigureWhite(Circle circle) {
-        if (circle.getFill().equals(Paint.valueOf(whitePawnColor)) || circle.getFill().equals(Paint.valueOf(whiteQueenColor)))
-            return true;
-        return false;
-    }
-
-
-
-    private boolean isSelectedFigureBlack(Circle circle) {
-        if (circle.getFill().equals(Paint.valueOf(blackPawnColor)) || circle.getFill().equals(Paint.valueOf(blackQueenColor)))
-            return true;
-        return false;
-    }
-
-
-    //przenies figure z jednego pola na drugie
-    public void makeMove(MouseEvent mouseEvent){
-        if (isMyTurn && isSelected)
-            sendMessage(mouseEvent);
     }
 
     private boolean sendMessage(MouseEvent mouseEvent) {
@@ -310,16 +290,6 @@ public class Controller {
             return false;
     }
 
-    //zamknij program
-    public void exit(){
-        try {
-            closeLastConnection();
-        }
-        catch (Exception e) { }
-        Platform.exit();
-        System.exit(0);
-    }
-
     private void closeLastConnection(){
         try {
             connection.closeConnection();
@@ -329,41 +299,74 @@ public class Controller {
         }
     }
 
-    private boolean establishNewConnection(){
-        try{
-            if (!serverPortTextField.getText().isEmpty() && !serverAddressTextField.getText().isEmpty()) {
-                connection = new Connection(serverAddressTextField.getText(), Integer.valueOf(serverPortTextField.getText()));
-                return true;
+    /* ---------------------------------------- FXML FUNCTIONS ----------------------------------------- */
+    public void newGame() {
+        startNewGame();
+    }
+
+    public void abortGame() {
+        closeLastConnection();
+        setSceneElements(false);
+        removeAllPieces();
+        connectionLabel.setVisible(false);
+    }
+
+    //podswietl figure
+    public void figureOnMouseEntered(MouseEvent event){
+        Circle source = (Circle) event.getSource();
+        if(!(selectedCircle == source)) {
+            if (myPlayerNumber.equals("1") && isSelectedFigureWhite(source)) {
+                source.setStroke(Color.RED);
+            }
+            else if (myPlayerNumber.equals("2") && isSelectedFigureBlack(source)) {
+                source.setStroke(Color.RED);
+            }
+        }
+    }
+
+    public void figureOnMouseExited(MouseEvent event) {
+        Circle source = (Circle) event.getSource();
+        if(!(selectedCircle == source))
+            source.setStroke(Color.BLACK);
+    }
+
+    public void selectFigure(MouseEvent event) {
+        Circle pom = (Circle) event.getSource();
+        if(isSelected == true) {
+            if (selectedCircle == pom){
+                selectedCircle.setStroke(Color.BLACK);
+                isSelected = false;
             }
             else {
-                return false;
+                selectedCircle.setStroke(Color.BLACK);
+                selectedCircle = (Circle) event.getSource();
+                selectedCircle.setStroke(Color.GREEN);
             }
         }
-        catch (IOException e){
-            return false;
+        else {
+            if ((myPlayerNumber.equals("1") && isSelectedFigureWhite(pom) || (myPlayerNumber.equals("2") && isSelectedFigureBlack(pom)))) {
+                selectedCircle = (Circle) event.getSource();
+                isSelected = true;
+                selectedCircle.setStroke(Color.GREEN);
+            }
         }
     }
 
-    public Node getNodeByRowColumnIndex (final int row, final int column) {
-        Node result = null;
-        ObservableList<Node> childrens = gridPane.getChildren();
-
-        for (Node node : childrens) {
-            if(GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column && node.isVisible()) {
-                result = node;
-                break;
-            }
-        }
-
-        return result;
+    //przenies figure z jednego pola na drugie
+    public void makeMove(MouseEvent mouseEvent){
+        if (isMyTurn && isSelected)
+            sendMessage(mouseEvent);
     }
 
-    private void removeAllPieces() {
-        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
 
-        for (Circle circle : circles) {
-            circle.setVisible(false);
+    //zamknij program
+    public void exit(){
+        try {
+            closeLastConnection();
         }
+        catch (Exception e) { }
+        Platform.exit();
+        System.exit(0);
     }
 
     public void initialize() {
