@@ -1,0 +1,2 @@
+gcc -pthread -Wall main.c singleGameLogic.c -o serverStarter
+./serverStarter
