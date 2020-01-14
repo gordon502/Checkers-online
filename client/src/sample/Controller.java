@@ -40,16 +40,16 @@ public class Controller {
     private Connection connection;
 
     //elementy sceny
-    private Button newGameButton;
-    private Button exitButton;
-    private Button abortButton;
-    private GridPane gridPane;
-    private Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
-    private Label serverPortLabel;
-    private Label serverAddressLabel;
-    private Label connectionLabel;
-    private TextField serverAddressTextField;
-    private TextField serverPortTextField;
+    public Button newGameButton;
+    public Button exitButton;
+    public Button abortButton;
+    public GridPane gridPane;
+    public Circle bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12;
+    public Label serverPortLabel;
+    public Label serverAddressLabel;
+    public Label connectionLabel;
+    public TextField serverAddressTextField;
+    public TextField serverPortTextField;
 
     /* ---------------------------- WEWNETRZNE FUNKCJE ----------------------------------- */
 
