@@ -85,6 +85,8 @@ int main()
             pthread_detach(newGame);
         }
     }
+    
+    close(serverSocket);
 
   return 0;
 }
