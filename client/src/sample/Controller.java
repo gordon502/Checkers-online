@@ -25,9 +25,8 @@ public class Controller {
     private boolean isSelected = false;
     private String myPlayerNumber;
 
+
     private Connection connection;
-
-
 
     //elementy sceny
     public Stage window;
@@ -45,7 +44,6 @@ public class Controller {
         }
         else {
             isMyTurn = false;
-            System.out.println("wylaczono Grid");
             gridPane.setDisable(!isMyTurn);
         }
 
@@ -79,16 +77,18 @@ public class Controller {
         if (establishNewConnection()) {
             Thread thread = new Thread(() -> {
                 try {
+                    //receive first message about which player you are
                     final String firstMessage = receiveMessage();
                     Platform.runLater(() -> { setUpPiecesAndVariables(firstMessage); } );
 
                     while (connection.isConnected) {
                         final String receivedMessage = receiveMessage();
                         System.out.println(receivedMessage);
-                        if (receivedMessage.startsWith("0")){
+                        if (receivedMessage.startsWith("0")){ //serwer informuje nas, ze przeciwnik sie rozlaczyl
                             connection.isConnected = false;
-                            System.out.println("Utracono polaczenie");
+                            removeAllPieces();
                             closeLastConnection();
+                            Alerts.showDisconnectAlert();
                             break;
                         }
                         else if (wasMoveCorrect(receivedMessage) && connection.isConnected) {
@@ -266,6 +266,14 @@ public class Controller {
         }
 
         return result;
+    }
+
+    private void removeAllPieces() {
+        Circle[] circles = {bp1, bp2, bp3, bp4, bp5, bp6, bp7, bp8, bp9, bp10, bp11, bp12, wp1, wp2, wp3, wp4, wp5, wp6, wp7, wp8, wp9, wp10, wp11, wp12};
+
+        for (Circle circle : circles) {
+            circle.setVisible(false);
+        }
     }
 }
 
