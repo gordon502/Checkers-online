@@ -31,7 +31,6 @@ public class Connection {
         while ((x = inputStream.read()) != 0) {
             msg.append((char) x);
         }
-        System.out.println(msg.toString());
         String s = msg.toString().trim();
         return s;
     }

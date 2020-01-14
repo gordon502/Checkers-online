@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -83,19 +84,23 @@ public class Controller {
 
                     while (connection.isConnected) {
                         final String receivedMessage = receiveMessage();
+                        System.out.println(receivedMessage);
                         if (receivedMessage.startsWith("0")){
                             connection.isConnected = false;
                             System.out.println("Utracono polaczenie");
                             closeLastConnection();
                             break;
                         }
-                        if (wasMoveCorrect(receivedMessage)) {
-                            Platform.runLater(()-> { updateBoard(receivedMessage); });
-                            Platform.runLater(() -> { updateGameVariables(receivedMessage); });
+                        else if (wasMoveCorrect(receivedMessage) && connection.isConnected) {
+                            Platform.runLater(()-> {
+                                updateBoard(receivedMessage);
+                                updateGameVariables(receivedMessage);
+                            });
                         }
                     }
                 } catch (IOException e) {
                     connection.isConnected = false;
+                    System.out.println("zerwalo polaczenie");
                 }
 
 
@@ -134,7 +139,6 @@ public class Controller {
         }
         else {
             if ((myPlayerNumber.equals("1") && pom.getFill().equals(wp1.getFill())) || (myPlayerNumber.equals("2") && pom.getFill().equals(bp1.getFill()))) {
-                System.out.println("zaznaczylem figure");
                 selectedCircle = (Circle) event.getSource();
                 isSelected = true;
                 selectedCircle.setStroke(Color.GREEN);
@@ -150,13 +154,11 @@ public class Controller {
     }
 
     private boolean sendMessage(MouseEvent mouseEvent) {
-        Integer cindex = (int) (mouseEvent.getX()/(gridPane.getWidth()/8));
+        Integer cindex = (int) (mouseEvent.getX()/(gridPane.getWidth()/9));
         Integer rindex = (int) (mouseEvent.getY()/(gridPane.getHeight()/8));
-        if (cindex != GridPane.getColumnIndex(selectedCircle) && rindex != GridPane.getRowIndex(selectedCircle)) {
+        if (cindex != GridPane.getColumnIndex(selectedCircle) && rindex != GridPane.getRowIndex(selectedCircle) && cindex < 8 && rindex < 8) {
             String message = GridPane.getRowIndex(selectedCircle).toString() + GridPane.getColumnIndex(selectedCircle).toString() +
                     rindex.toString() + cindex.toString();
-
-            System.out.println(message);
             connection.sendMessage(message);
             return true;
         }
@@ -176,13 +178,12 @@ public class Controller {
 
     private void updateBoard(String message) {
         System.out.println("updateBoad: " + message);
-        System.out.println(message.substring(3,4));
         Integer fromrowindex = Integer.valueOf(message.substring(3, 4));
         Integer fromcolumnindex = Integer.valueOf(message.substring(4, 5));
         Integer torowindex = Integer.valueOf(message.substring(5, 6));
         Integer tocolumnindex = Integer.valueOf(message.substring(6, 7));
 
-        Circle movedCircle = (Circle) getNodeFromGridPane(fromcolumnindex, fromrowindex);
+        Node movedCircle = getNodeByRowColumnIndex(fromrowindex, fromcolumnindex);
         GridPane.setRowIndex(movedCircle, torowindex);
         GridPane.setColumnIndex(movedCircle, tocolumnindex);
 
@@ -194,7 +195,7 @@ public class Controller {
             int rowindex = Integer.valueOf(message.substring(8, 9));
             int columnindex = Integer.valueOf(message.substring(9, 10));
             System.out.println(rowindex + " " + columnindex);
-            Circle removedFigure = (Circle) getNodeFromGridPane(columnindex, rowindex);
+            Circle removedFigure = (Circle) getNodeByRowColumnIndex(rowindex, columnindex);
             removedFigure.setVisible(false);
         }
     }
@@ -253,13 +254,18 @@ public class Controller {
         }
     }
 
-    private Node getNodeFromGridPane(int col, int row) {
-        for (Node node : gridPane.getChildren()) {
-            if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-                return node;
+    public Node getNodeByRowColumnIndex (final int row, final int column) {
+        Node result = null;
+        ObservableList<Node> childrens = gridPane.getChildren();
+
+        for (Node node : childrens) {
+            if(GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column && node.isVisible()) {
+                result = node;
+                break;
             }
         }
-        return null;
+
+        return result;
     }
 }
 
