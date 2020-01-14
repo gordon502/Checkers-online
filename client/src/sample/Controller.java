@@ -58,6 +58,7 @@ public class Controller {
             myPlayerNumber = receivedMessage.substring(1,2);
         if (myPlayerNumber.equals("1")) {
             isMyTurn = true;
+            gridPane.setDisable(!isMyTurn);
         }
         else {
             isMyTurn = false;
@@ -113,14 +114,15 @@ public class Controller {
                         final String receivedMessage = receiveMessage();
                         System.out.println(receivedMessage);
                         if (receivedMessage.startsWith("0")){ //serwer informuje nas, ze przeciwnik sie rozlaczyl
-                            connection.isConnected = false;
-                            closeLastConnection();
-                            Platform.runLater(() -> {
-                                Alerts.showErrorAlert("Your opponent has disconnected!");
-                                removeAllPieces();
-                                setSceneElements(false);
-                                connectionLabel.setVisible(false);
-                            });
+                            Platform.runLater(() -> { closeActiveGame("Your opponent has disconnected!"); });
+                            break;
+                        }
+                        else if (receivedMessage.substring(13,14).equals("1")) { //kiedy serwer informuje, ze gra skonczyla sie
+                            String result;
+                            if (receivedMessage.substring(14,15).equals("0")) { result = "Draw!"; }
+                            else if (receivedMessage.substring(14,15).equals(myPlayerNumber)) { result = "You win!"; }
+                            else  { result = "You lose!"; }
+                            Platform.runLater(() -> { closeActiveGame("Game Ended!\n" + result); });
                             break;
                         }
                         else if (wasMoveCorrect(receivedMessage) && connection.isConnected) {
@@ -131,9 +133,7 @@ public class Controller {
                         }
                     }
                 } catch (IOException e) {
-                    connection.isConnected = false;
-                    System.out.println("zerwalo polaczenie");
-                    newGameButton.setDisable(false);
+                    Platform.runLater(() -> { closeActiveGame("There was a error in communication with server!"); });
                 }
 
 
@@ -151,6 +151,15 @@ public class Controller {
         removeAllPieces();
         connectionLabel.setVisible(false);
     }
+
+    private void closeActiveGame(String information) {
+        connection.isConnected = false;
+        closeLastConnection();
+        Alerts.showErrorAlert(information);
+        removeAllPieces();
+        setSceneElements(false);
+        connectionLabel.setVisible(false);
+        }
 
     private void setSceneElements(boolean value) {
         newGameButton.setDisable(value);

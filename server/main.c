@@ -10,9 +10,8 @@
 #include <fcntl.h>
 
 #define queue 20 //maksymalny rozmiar kolejki
+#define PORT 2223
 
-
-pthread_mutex_t copy_data_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct Descriptors {
     int player1Socket;
@@ -50,7 +49,7 @@ int main()
 
     //Konfiguracja serwera
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(2223);
+    serverAddr.sin_port = htons(PORT);
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
     
@@ -85,7 +84,7 @@ int main()
             pthread_detach(newGame);
         }
     }
-    
+
     close(serverSocket);
 
   return 0;

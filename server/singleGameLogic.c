@@ -8,6 +8,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 
 #define true 1
@@ -208,6 +209,26 @@ int checkMove(int board[8][8], int playerMove, int continuousJump, int lastJumpC
     return false;
 }
 
+//funkcja analizujaca plansze sprawdzajac ktory gracz wygral badz czy jeszcze trwa gra
+int analyzeBoardSituation(int board[8][8]) {
+    int whiteFlag = 0;
+    int blackFlag = 0;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++) 
+            if (board[i][j] == 1 || board[i][j] == 11)
+                whiteFlag = 1;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++) 
+            if (board[i][j] == 2 || board[i][j] == 22)
+                blackFlag = 1;
+    
+    if (whiteFlag == 0) {  return 2; }
+    else if (blackFlag == 0) { return 1; }
+    else { return 0; }
+        
+        
+}
+
 int startNewGame(int player1Socket, int player2Socket){
 
     char msg1[]="91\n";
@@ -235,13 +256,15 @@ int startNewGame(int player1Socket, int player2Socket){
     int activeSocket; //socket, ktory ma prawo do ruchu
     int secondSocket; //socket, ktory czeka na drugiego gracza
     int nextPlayer; //gracz, ktory bedzie mial ruch w nastepnej iteracji petli
+
+    int movesWithoutJump = 0;
     
     
     /* petla odpowiedzialna za przetwarzanie rozgrywki */
     while(1) {
         
          //zakodowana wiadomosc
-        char sendMessage[] = "1115041099099";
+        char sendMessage[] = "111504109909909";
         
         if (playerMove == 1) { activeSocket = player1Socket; secondSocket = player2Socket; } //w zaleznosci czyj jest ruch ustawiamy aktywny socket
         else { activeSocket = player2Socket; secondSocket = player1Socket; }
@@ -250,7 +273,7 @@ int startNewGame(int player1Socket, int player2Socket){
         int rcv_message_size = get_message_size(activeSocket);
         if (rcv_message_size == -1) { //kiedy zerwane zostalo polaczenie
             sendMessage[0] = '0';
-            write(secondSocket, sendMessage, sizeof(sendMessage)); //wysylamy informacje do drugiego o rozlaczeniu
+            send(secondSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje do drugiego o rozlaczeniu
             sleep(3); //czekamy zeby za wczesnie nie zamknac socketa
             close(secondSocket); //zamknij polaczenie
             close(activeSocket); //dla pewnosci
@@ -282,6 +305,8 @@ int startNewGame(int player1Socket, int player2Socket){
                 sendMessage[5] = index2 + '0'; sendMessage[6] = index3 + '0';
 
                 if(abs(index0 - index2) == 2) { //upewniamy sie czy wykonany ruch byl biciem 
+                    movesWithoutJump = 0; //zerujemy licznik
+
                     board[(index0 + index2) / 2][(index1 + index3) / 2] = 0;
                     lastJumpCoords[0] = index2;
                     lastJumpCoords[1] = index3;
@@ -295,8 +320,8 @@ int startNewGame(int player1Socket, int player2Socket){
                         continuousJump = true;
                         sendMessage[1] = '1'; sendMessage[2] = '1';
 
-                        write(activeSocket, sendMessage, sizeof(sendMessage)); //wysylamy informacje o poprawnosci ruchu i obowiazku kolejnego bicia
-                        write(secondSocket, sendMessage, sizeof(sendMessage)); //informujemy drugiego gracza, jaki ruch wykonal przeciwnik aby zaktualizowal stan gry
+                        send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o poprawnosci ruchu i obowiazku kolejnego bicia
+                        send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, jaki ruch wykonal przeciwnik aby zaktualizowal stan gry
                         nextPlayer = playerMove;
                         
                     }
@@ -304,34 +329,47 @@ int startNewGame(int player1Socket, int player2Socket){
                         continuousJump = false;
                         sendMessage[1] = '1'; sendMessage[2] = '0';
 
-                        write(activeSocket, sendMessage, sizeof(sendMessage)); //wysylamy informacje o ruchu i zmianie kolejki
-                        write(secondSocket, sendMessage, sizeof(sendMessage)); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
+                        send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o ruchu i zmianie kolejki
+                        send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
                         if (playerMove == 1) nextPlayer = 2;
                         else nextPlayer = 1;
                     
                     }
                 }
-                else {
+                else { //normalny ruch
+                    movesWithoutJump++; //zwiekszamy ilosc ruchow bez bicia
                     sendMessage[1] = '1'; sendMessage[2] = '0';
 
-                    write(activeSocket, sendMessage, sizeof(sendMessage)); //wysylamy informacje o ruchu i zmianie kolejki
-                    write(secondSocket, sendMessage, sizeof(sendMessage)); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
+                    send(activeSocket, sendMessage, sizeof(sendMessage), 0); //wysylamy informacje o ruchu i zmianie kolejki
+                    send(secondSocket, sendMessage, sizeof(sendMessage), 0); //informujemy drugiego gracza, ze bedzie mogl wykonac swoj ruch i co przeciwnik zrobil
                     if (playerMove == 1) nextPlayer = 2;
                     else nextPlayer = 1;
                 
                 }
                 playerMove = nextPlayer;
 
+                int whichPlayerWon = analyzeBoardSituation(board);
+                if (movesWithoutJump >= 40 || whichPlayerWon > 0) { //kiedy jakis gracz pozbyl sie wszystkich figur przeciwnika badz nie bylo bic
+                    sendMessage[13] = '1';
+                    sendMessage[14] = whichPlayerWon + '0';
+                    send(activeSocket, sendMessage, sizeof(sendMessage), 0);
+                    send(secondSocket, sendMessage, sizeof(sendMessage), 0);
+                    sleep(3);
+                    close(activeSocket);
+                    close(secondSocket);
+                    return 1;
+                }
+
             }
             else { //kiedy  ruch nie jest prawidlowy
                 sendMessage[1] = '0'; sendMessage[2] = '0';
-                write(activeSocket, sendMessage, sizeof(sendMessage)); //informujemy aktywnego gracza, ze ruch jest niepoprawny i aby wykonal go jeszcze raz
+                send(activeSocket, sendMessage, sizeof(sendMessage), 0); //informujemy aktywnego gracza, ze ruch jest niepoprawny i aby wykonal go jeszcze raz
             }
         }
         else { //kiedy przy odbieraniu wiadomosci o ruchu drugiego gracza zerwalo polaczenie
             sendMessage[0] = '0';
             close(activeSocket);
-            write(secondSocket, sendMessage, sizeof(sendMessage));
+            send(secondSocket, sendMessage, sizeof(sendMessage), 0);
             sleep(3);
             close(secondSocket);
         }
