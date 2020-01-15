@@ -404,6 +404,7 @@ int startNewGame(int player1Socket, int player2Socket){
             send(secondSocket, sendMessage, sizeof(sendMessage), 0);
             sleep(3);
             close(secondSocket);
+            return -1;
         }
             
 
