@@ -1,4 +1,3 @@
-/* ocena kodu w obecnej formie: schludnie, choc nasrane */
 #include "singleGameLogic.h"
 #include <stdio.h>
 #include <stdlib.h>
