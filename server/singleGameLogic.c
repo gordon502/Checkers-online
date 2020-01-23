@@ -45,6 +45,27 @@ int get_message_size(int activeSocket) {
     
 }
 
+int getMessage(int socket, char buffer[], int message_size) {
+    int lastIndex = 0; //index, do ktorego wpisujemy w nastepnej iteracji petli
+    char secondBuffer[message_size];
+    while(true) {
+        int readedBytes = recv(socket, secondBuffer, message_size, 0);
+        if (readedBytes > 0) {
+            for (int i = 0; i < readedBytes; i++) {
+                memcpy(&(buffer[i + lastIndex]), &(secondBuffer[i]), 1);
+            }
+            lastIndex = lastIndex + readedBytes;
+            if (lastIndex == message_size) { //kiedy odczytalismy wszystko
+                break;
+            }
+        }
+        else {
+            return -1;
+        }
+    }
+    return 1; //sukces
+}
+
 /* funkcja zamieniajaca pionki na krolowe */
 int convertToQueens(int board[8][8]){
     int indexes;
@@ -296,7 +317,7 @@ int startNewGame(int player1Socket, int player2Socket){
     while(1) {
         
          //zakodowana wiadomosc
-        char sendMessage[] = "111504109909909";
+        char sendMessage[] = "111504109909909\n";
         
         if (playerMove == 1) { activeSocket = player1Socket; secondSocket = player2Socket; } //w zaleznosci czyj jest ruch ustawiamy aktywny socket
         else { activeSocket = player2Socket; secondSocket = player1Socket; }
@@ -312,8 +333,11 @@ int startNewGame(int player1Socket, int player2Socket){
             return -1;
         }
 
+
+
         char rcv_message[rcv_message_size];
-        if (recv(activeSocket, rcv_message, rcv_message_size, 0) > 0) {//odbieranie wiadomosci od aktywnego gracza
+        int isMessageReceived = getMessage(activeSocket, rcv_message, rcv_message_size);
+        if (isMessageReceived > 0) {//odbieranie wiadomosci od aktywnego gracza
         
             if(checkMove(board, playerMove, continuousJump, lastJumpCoords, rcv_message) == true) { //kiedy wyslany ruch jest prawidlowy
                 int index0 = rcv_message[0] - '0'; int index1 = rcv_message[1] - '0'; //indeksy planszy

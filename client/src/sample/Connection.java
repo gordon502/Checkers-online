@@ -28,8 +28,17 @@ public class Connection {
     public String readMessage() throws IOException {
         StringBuilder msg = new StringBuilder();
         int x;
-        while ((x = inputStream.read()) != 0) {
-            msg.append((char) x);
+        while (true) {
+            x = inputStream.read();
+            if (x > 0) {
+                char character = (char) x;
+                if(character == '\n') {
+                    break;
+                }
+                else {
+                    msg.append(character);
+                }
+            }
         }
         String s = msg.toString().trim();
         return s;
